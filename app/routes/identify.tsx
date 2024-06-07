@@ -132,6 +132,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           },
         });
         console.log("Latest primary turned into secondary.");
+
+        await prisma.contact.updateMany({
+          where: { linkedId: contacts[1].id },
+          data: {
+            linkPrecedence: "secondary",
+            linkedId: contacts[0].id,
+          },
+        });
+        console.log(
+          "Former primary secondaries reassigned to earliest primary."
+        );
         primaryContactId = contacts[0].id;
       }
 
