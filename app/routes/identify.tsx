@@ -3,17 +3,17 @@ import { json, redirect } from "@remix-run/node";
 import { prisma } from "~/db.server";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  // /* FROM FORM DATA READAPTED TO JSON BODY
+  /* FROM FORM DATA READAPTED TO JSON BODY
   const form = await request.formData();
   const phoneNumber = form.get("phonenumber") || "";
   const email = form.get("email") || "";
-  // */
+  */
 
-  /* Uncomment above and comment here to use form data.
+  // /* Uncomment above and comment here to use form data.
   const data = await request.json();
   const phoneNumber = data.phoneNumber || "";
   const email = data.email || "";
-  */
+  // */
 
   if (typeof phoneNumber !== "string" || typeof email !== "string") {
     return null;
