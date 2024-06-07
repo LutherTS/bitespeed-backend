@@ -2,6 +2,7 @@ import { useFetcher } from "@remix-run/react";
 
 export default function Reset() {
   const fetcher = useFetcher();
+  console.log(fetcher.data);
 
   return (
     <>

@@ -23,5 +23,3 @@ model Contact {
   primary           Contact?     @relation("PrimarySecondaries", fields: [linkedId], references: [id])
   secondaries       Contact[]    @relation("PrimarySecondaries")
 }
-
-// Finally got db uncommitted.

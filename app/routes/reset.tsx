@@ -1,8 +1,7 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { prisma } from "~/db.server";
 
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = async () => {
   console.log("Deleting existing entries in Contact table...");
   const deleteContacts = await prisma.contact.deleteMany({});
 
