@@ -3,15 +3,17 @@ import { json, redirect } from "@remix-run/node";
 import { prisma } from "~/db.server";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  /* FROM FORM DATA TO BE READAPTED TO JSON BODY
+  /* FROM FORM DATA READAPTED TO JSON BODY
   const form = await request.formData();
   const phoneNumber = form.get("phonenumber") || "";
   const email = form.get("email") || "";
   */
 
+  // /* Uncomment above and comment here to use form data.
   const data = await request.json();
   const phoneNumber = data.phoneNumber || "";
   const email = data.email || "";
+  // */
 
   if (typeof phoneNumber !== "string" || typeof email !== "string") {
     return null;
@@ -20,7 +22,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   let primaryContactId;
   let emails;
   let phoneNumbers;
-  let secondaryIds;
+  let secondaryContactIds;
 
   const exactContact = await prisma.contact.findFirst({
     where: { AND: [{ phoneNumber }, { email }] },
@@ -130,6 +132,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           },
         });
         console.log("Latest primary turned into secondary.");
+
+        await prisma.contact.updateMany({
+          where: { linkedId: contacts[1].id },
+          data: {
+            linkPrecedence: "secondary",
+            linkedId: contacts[0].id,
+          },
+        });
+        console.log(
+          "Former primary secondaries reassigned to earliest primary."
+        );
         primaryContactId = contacts[0].id;
       }
 
@@ -227,14 +240,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   phoneNumbers = [...new Set(contactPhoneNumbers.map((e) => e.phoneNumber))];
 
-  secondaryIds = contactSecondaryIds.map((e) => e.id);
+  secondaryContactIds = contactSecondaryIds.map((e) => e.id);
 
   console.log({
     contact: {
       primaryContactId,
       emails,
       phoneNumbers,
-      secondaryIds,
+      secondaryContactIds,
     },
   });
 
@@ -244,7 +257,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         primaryContactId,
         emails,
         phoneNumbers,
-        secondaryIds,
+        secondaryContactIds,
       },
     },
     { status: 200 }
