@@ -1,6 +1,6 @@
 import { useFetcher } from "@remix-run/react";
 
-export default function Form() {
+export default function Indentify() {
   const fetcher = useFetcher();
 
   return (
