@@ -236,8 +236,3 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export const loader = async () => redirect("/");
-
-/* Notes
-I think I need to do this step by step to make sure I do everything they're
-asking.
-*/
