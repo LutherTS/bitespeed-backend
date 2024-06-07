@@ -1,11 +1,17 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { prisma } from "~/db.server";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
+  /* FROM FORM DATA TO BE READAPTED TO JSON BODY
   const form = await request.formData();
   const phoneNumber = form.get("phonenumber") || "";
   const email = form.get("email") || "";
+  */
+
+  const data = await request.json();
+  const phoneNumber = data.phoneNumber || "";
+  const email = data.email || "";
 
   if (typeof phoneNumber !== "string" || typeof email !== "string") {
     return null;
@@ -232,7 +238,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     },
   });
 
-  return null;
+  return json(
+    {
+      contact: {
+        primaryContactId,
+        emails,
+        phoneNumbers,
+        secondaryIds,
+      },
+    },
+    { status: 200 }
+  );
 };
 
 export const loader = async () => redirect("/");
