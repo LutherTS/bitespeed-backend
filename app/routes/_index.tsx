@@ -10,6 +10,7 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+// Switch to JSON Body now makes this unnecessary.
 export default function Index() {
   return (
     <>
