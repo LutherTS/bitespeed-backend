@@ -1,4 +1,4 @@
-import { redirect } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { prisma } from "~/db.server";
 
 export const action = async () => {
@@ -8,7 +8,14 @@ export const action = async () => {
   console.log("Contact table reset. Delete count shown below.");
   console.log(deleteContacts);
 
-  return null;
+  return json(
+    {
+      message: `Contacts reset. ${deleteContacts.count} ${
+        deleteContacts.count === 1 ? "contact" : "contacts"
+      } deleted.`,
+    },
+    { status: 200 }
+  );
 };
 
 export const loader = async () => redirect("/");
