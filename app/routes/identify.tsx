@@ -1,28 +1,61 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { prisma } from "~/db.server";
+import { z } from "zod";
+
+const IdentifySchema = z.object({
+  phoneNumber: z
+    .string({
+      invalid_type_error: "Please provide a string for the phone number.",
+    })
+    .regex(/^\+?[0-9]*$/gm, {
+      message:
+        "Please enter only numbers for the phone number. (You can start with a '+' though.)",
+    })
+    .max(15, {
+      message: "Your phone number cannot be more than 15 characters.",
+    }),
+  email: z
+    .string({
+      invalid_type_error: "Please provide a string for the email.",
+    })
+    .email({
+      message: "Please adhere to a valid format for the email.",
+    })
+    .max(50, {
+      message: "Your email cannot be more than 50 characters.",
+    }),
+});
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   /* FROM FORM DATA READAPTED TO JSON BODY
   const form = await request.formData();
-  const phoneNumber = form.get("phonenumber") || "";
-  const email = form.get("email") || "";
+  const phoneNumberData = form.get("phonenumber") || "";
+  const emailData = form.get("email") || "";
   */
 
   // /* Uncomment above and comment here to use form data.
   const data = await request.json();
-  const phoneNumber = data.phoneNumber || "";
-  const email = data.email || "";
+  let phoneNumberData = data.phoneNumber || "";
+  let emailData = data.email || "";
   // */
 
-  if (typeof phoneNumber !== "string" || typeof email !== "string") {
+  const validatedFields = IdentifySchema.safeParse({
+    phoneNumber: phoneNumberData,
+    email: emailData,
+  });
+
+  if (!validatedFields.success) {
     return json(
       {
-        message: "Error: Somehow neither phone number nor email is a string.",
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: "The data was not properly provided.",
       },
       { status: 400 }
     );
   }
+
+  const { phoneNumber, email } = validatedFields.data;
 
   let primaryContactId;
   let emails;

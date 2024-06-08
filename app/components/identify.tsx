@@ -39,7 +39,7 @@ export default function Indentify() {
       )}
       {fetcher.data?.message && (
         <>
-          <p>Primary contact ID: {fetcher.data.message}</p>
+          <p>{fetcher.data.message}</p>
         </>
       )}
     </>
