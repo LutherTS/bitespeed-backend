@@ -1,23 +1,61 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { prisma } from "~/db.server";
+import { z } from "zod";
+
+const IdentifySchema = z.object({
+  phoneNumber: z
+    .string({
+      invalid_type_error: "Please provide a string for the phone number.",
+    })
+    .regex(/^\+?[0-9]*$/gm, {
+      message:
+        "Please enter only numbers for the phone number. (You can start with a '+' though.)",
+    })
+    .max(15, {
+      message: "Your phone number cannot be more than 15 characters.",
+    }),
+  email: z
+    .string({
+      invalid_type_error: "Please provide a string for the email.",
+    })
+    .email({
+      message: "Please adhere to a valid format for the email.",
+    })
+    .max(50, {
+      message: "Your email cannot be more than 50 characters.",
+    }),
+});
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   /* FROM FORM DATA READAPTED TO JSON BODY
   const form = await request.formData();
-  const phoneNumber = form.get("phonenumber") || "";
-  const email = form.get("email") || "";
+  const phoneNumberData = form.get("phonenumber") || "";
+  const emailData = form.get("email") || "";
   */
 
   // /* Uncomment above and comment here to use form data.
   const data = await request.json();
-  const phoneNumber = data.phoneNumber || "";
-  const email = data.email || "";
+  let phoneNumberData = data.phoneNumber || "";
+  let emailData = data.email || "";
   // */
 
-  if (typeof phoneNumber !== "string" || typeof email !== "string") {
-    return null;
+  const validatedFields = IdentifySchema.safeParse({
+    phoneNumber: phoneNumberData,
+    email: emailData,
+  });
+
+  if (!validatedFields.success) {
+    return json(
+      {
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: "The data was not properly provided.",
+      },
+      { status: 400 }
+    );
   }
+
+  const { phoneNumber, email } = validatedFields.data;
 
   let primaryContactId;
   let emails;
@@ -45,9 +83,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     if (!contactByPhoneNumber && !contactByEmail) {
       if (phoneNumber === "" || email === "") {
         console.log(
-          "Error. Cannot create a brand-new contact without both a phone number and an email."
+          "Error: Cannot create a brand-new contact without both a phone number and an email."
         );
-        return null;
+        return json(
+          {
+            message:
+              "Error: Cannot create a brand-new contact without both a phone number and an email.",
+          },
+          { status: 400 }
+        );
       } else {
         console.log(
           "Creating a brand-new contact from new phone number and new email."
@@ -111,7 +155,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
     // exactContact is already catched on top so the following are bound
     // to be different, and since they both are findFirst they are also
-    // bound to be both primaries in their own right.
+    // likely to be both primaries in their own right.
     if (contactByEmail && contactByPhoneNumber) {
       const contacts = [contactByEmail, contactByPhoneNumber];
       const primaries = contacts.filter((e) => e.linkPrecedence === "primary");
@@ -158,7 +202,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         );
 
         // impossible but for type safety
-        if (!secondary) return null;
+        if (!secondary)
+          return json(
+            {
+              message: "Error: Somehow no secondary was found.",
+            },
+            { status: 404 }
+          );
 
         await prisma.contact.update({
           where: { id: secondary.id },
@@ -173,12 +223,18 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           "Two secondaries found, once for phone number, one for email."
         );
         console.log(
-          "Consequently, the decision is made that in such instances, only the earliest of their primaries will be shown. (Handly both cases when the primaries are common and uncommon.)"
+          "Consequently, the decision is made that in such instances, only the earliest of their primaries will be shown. (Handling both cases when the primaries are common and uncommon.)"
         );
 
         // again impossible, but necessary for type safety
         if (!contactByPhoneNumber.linkedId || !contactByEmail.linkedId)
-          return null;
+          return json(
+            {
+              message:
+                "Error: Somehow no linkedId was found on at least one of the contacts.",
+            },
+            { status: 404 }
+          );
 
         const theirPrimaries = await prisma.contact.findMany({
           where: {
@@ -199,7 +255,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   // again for type safety
   if (typeof primaryContactId !== "number") {
-    return null;
+    return json(
+      {
+        message: "Error: Somehow the primary contact ID is not a number.",
+      },
+      { status: 400 }
+    );
   }
 
   const contactEmails = await prisma.contact.findMany({
