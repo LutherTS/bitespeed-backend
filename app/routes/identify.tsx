@@ -73,7 +73,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   });
 
   if (exactContact) {
-    console.log("Exact contact already exists.");
+    // console.log("Exact contact already exists.");
     primaryContactId =
       exactContact.linkPrecedence === "primary"
         ? exactContact.id
@@ -88,9 +88,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
     if (!contactByPhoneNumber && !contactByEmail) {
       if (phoneNumber === "" || email === "") {
-        console.log(
-          "Error: Cannot create a brand-new contact without both a phone number and an email."
-        );
+        // console.log(
+        //   "Error: Cannot create a brand-new contact without both a phone number and an email."
+        // );
         return json(
           {
             message:
@@ -99,9 +99,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           { status: 400 }
         );
       } else {
-        console.log(
-          "Creating a brand-new contact from new phone number and new email."
-        );
+        // console.log(
+        //   "Creating a brand-new contact from new phone number and new email."
+        // );
         const newContact = await prisma.contact.create({
           data: {
             phoneNumber,
@@ -115,9 +115,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
     if (contactByPhoneNumber && !contactByEmail) {
       if (contactByPhoneNumber && email === "") {
-        console.log("Preexisting contact by phone number, no email provided.");
+        // console.log("Preexisting contact by phone number, no email provided.");
       } else {
-        console.log("Creating new secondary contact with new email.");
+        // console.log("Creating new secondary contact with new email.");
         await prisma.contact.create({
           data: {
             phoneNumber,
@@ -138,9 +138,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
     if (contactByEmail && !contactByPhoneNumber) {
       if (contactByEmail && phoneNumber === "") {
-        console.log("Preexisting contact by email, no phone number provided.");
+        // console.log("Preexisting contact by email, no phone number provided.");
       } else {
-        console.log("Creating new secondary contact with new phone number.");
+        // console.log("Creating new secondary contact with new phone number.");
         await prisma.contact.create({
           data: {
             phoneNumber,
@@ -167,7 +167,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const primaries = contacts.filter((e) => e.linkPrecedence === "primary");
 
       if (primaries.length === 2) {
-        console.log("Conflicting primaries.");
+        // console.log("Conflicting primaries.");
         contacts.sort(
           // @ts-ignore
           // It works. Typescript just doesn't understand this yet.
@@ -181,7 +181,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             linkedId: contacts[0].id,
           },
         });
-        console.log("Latest primary turned into secondary.");
+        // console.log("Latest primary turned into secondary.");
 
         await prisma.contact.updateMany({
           where: { linkedId: contacts[1].id },
@@ -190,19 +190,19 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             linkedId: contacts[0].id,
           },
         });
-        console.log(
-          "Former primary secondaries reassigned to earliest primary."
-        );
+        // console.log(
+        //   "Former primary secondaries reassigned to earliest primary."
+        // );
         primaryContactId = contacts[0].id;
       }
 
       if (primaries.length === 1) {
-        console.log("No conflicting primaries.");
+        // console.log("No conflicting primaries.");
         primaryContactId = primaries[0].id;
 
-        console.log(
-          "However, the decision is made that in such instances, the secondary is reassigned to the primary provided."
-        );
+        // console.log(
+        //   "However, the decision is made that in such instances, the secondary is reassigned to the primary provided."
+        // );
         const secondary = contacts.find(
           (e) => e.linkPrecedence === "secondary"
         );
@@ -225,12 +225,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       }
 
       if (primaries.length === 0) {
-        console.log(
-          "Two secondaries found, once for phone number, one for email."
-        );
-        console.log(
-          "Consequently, the decision is made that in such instances, only the earliest of their primaries will be shown. (Handling both cases when the primaries are common and uncommon.)"
-        );
+        // console.log(
+        //   "Two secondaries found, once for phone number, one for email."
+        // );
+        // console.log(
+        //   "Consequently, the decision is made that in such instances, only the earliest of their primaries will be shown. (Handling both cases when the primaries are common and uncommon.)"
+        // );
 
         // again impossible, but necessary for type safety
         if (!contactByPhoneNumber.linkedId || !contactByEmail.linkedId)
@@ -309,14 +309,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   secondaryContactIds = contactSecondaryIds.map((e) => e.id);
 
-  console.log({
-    contact: {
-      primaryContactId,
-      emails,
-      phoneNumbers,
-      secondaryContactIds,
-    },
-  });
+  // console.log({
+  //   contact: {
+  //     primaryContactId,
+  //     emails,
+  //     phoneNumbers,
+  //     secondaryContactIds,
+  //   },
+  // });
 
   return json(
     {
@@ -332,3 +332,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export const loader = async () => redirect("/");
+
+/* Notes
+The work is done. Commenting console.logs for runtime speed.
+Feel free to uncomment to understand the flow.
+*/
