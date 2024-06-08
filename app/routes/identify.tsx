@@ -2,6 +2,7 @@ import type { ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { prisma } from "~/db.server";
 import { z } from "zod";
+import isEmail from "validator/lib/isEmail";
 
 const IdentifySchema = z.object({
   phoneNumber: z
@@ -18,9 +19,6 @@ const IdentifySchema = z.object({
   email: z
     .string({
       invalid_type_error: "Please provide a string for the email.",
-    })
-    .email({
-      message: "Please adhere to a valid format for the email.",
     })
     .max(50, {
       message: "Your email cannot be more than 50 characters.",
@@ -56,6 +54,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   const { phoneNumber, email } = validatedFields.data;
+
+  if (email !== "" && !isEmail(email))
+    return json(
+      {
+        message: "Error: Please adhere to a valid format for the email.",
+      },
+      { status: 400 }
+    );
 
   let primaryContactId;
   let emails;
