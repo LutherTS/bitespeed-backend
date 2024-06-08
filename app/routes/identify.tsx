@@ -16,7 +16,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   // */
 
   if (typeof phoneNumber !== "string" || typeof email !== "string") {
-    return null;
+    return json(
+      {
+        message: "Error: Somehow neither phone number nor email is a string.",
+      },
+      { status: 400 }
+    );
   }
 
   let primaryContactId;
@@ -45,9 +50,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     if (!contactByPhoneNumber && !contactByEmail) {
       if (phoneNumber === "" || email === "") {
         console.log(
-          "Error. Cannot create a brand-new contact without both a phone number and an email."
+          "Error: Cannot create a brand-new contact without both a phone number and an email."
         );
-        return null;
+        return json(
+          {
+            message:
+              "Error: Cannot create a brand-new contact without both a phone number and an email.",
+          },
+          { status: 400 }
+        );
       } else {
         console.log(
           "Creating a brand-new contact from new phone number and new email."
@@ -111,7 +122,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
     // exactContact is already catched on top so the following are bound
     // to be different, and since they both are findFirst they are also
-    // bound to be both primaries in their own right.
+    // likely to be both primaries in their own right.
     if (contactByEmail && contactByPhoneNumber) {
       const contacts = [contactByEmail, contactByPhoneNumber];
       const primaries = contacts.filter((e) => e.linkPrecedence === "primary");
@@ -158,7 +169,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         );
 
         // impossible but for type safety
-        if (!secondary) return null;
+        if (!secondary)
+          return json(
+            {
+              message: "Error: Somehow no secondary was found.",
+            },
+            { status: 404 }
+          );
 
         await prisma.contact.update({
           where: { id: secondary.id },
@@ -173,12 +190,18 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           "Two secondaries found, once for phone number, one for email."
         );
         console.log(
-          "Consequently, the decision is made that in such instances, only the earliest of their primaries will be shown. (Handly both cases when the primaries are common and uncommon.)"
+          "Consequently, the decision is made that in such instances, only the earliest of their primaries will be shown. (Handling both cases when the primaries are common and uncommon.)"
         );
 
         // again impossible, but necessary for type safety
         if (!contactByPhoneNumber.linkedId || !contactByEmail.linkedId)
-          return null;
+          return json(
+            {
+              message:
+                "Error: Somehow no linkedId was found on at least one of the contacts.",
+            },
+            { status: 404 }
+          );
 
         const theirPrimaries = await prisma.contact.findMany({
           where: {
@@ -199,7 +222,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   // again for type safety
   if (typeof primaryContactId !== "number") {
-    return null;
+    return json(
+      {
+        message: "Error: Somehow the primary contact ID is not a number.",
+      },
+      { status: 400 }
+    );
   }
 
   const contactEmails = await prisma.contact.findMany({

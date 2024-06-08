@@ -8,6 +8,7 @@ type ContactResponse = JsonifyObject<{
     phoneNumbers: string[];
     secondaryContactIds: number[];
   };
+  message?: string;
 }>;
 
 export default function Indentify() {
@@ -22,7 +23,7 @@ export default function Indentify() {
         <input type="text" id="email" name="email" />
         <button type="submit">Submit</button>
       </fetcher.Form>
-      {fetcher.data && (
+      {fetcher.data?.contact && (
         <>
           <p>Primary contact ID: {fetcher.data.contact?.primaryContactId}</p>
           <p>Emails: {fetcher.data.contact?.emails.join(", ")}</p>
@@ -34,6 +35,11 @@ export default function Indentify() {
               ? fetcher.data.contact?.secondaryContactIds.join(", ")
               : "none"}
           </p>
+        </>
+      )}
+      {fetcher.data?.message && (
+        <>
+          <p>Primary contact ID: {fetcher.data.message}</p>
         </>
       )}
     </>
