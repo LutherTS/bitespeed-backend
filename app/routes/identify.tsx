@@ -198,17 +198,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
       if (primaries.length === 1) {
         // console.log("No conflicting primaries.");
-        primaryContactId = primaries[0].id;
+        const primary = primaries[0];
 
         // console.log(
-        //   "However, the decision is made that in such instances, the secondary is reassigned to the primary provided."
+        //   "However, the decision is made that in such instances, the primary of the secondary and all its secondaries (including the secondary provided) are reassigned to the primary provided."
         // );
         const secondary = contacts.find(
           (e) => e.linkPrecedence === "secondary"
         );
 
         // impossible but for type safety
-        if (!secondary)
+        if (!secondary?.linkedId)
           return json(
             {
               message: "Error: Somehow no secondary was found.",
@@ -216,12 +216,40 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             { status: 404 }
           );
 
-        await prisma.contact.update({
-          where: { id: secondary.id },
+        const primaryOfSecondary = await prisma.contact.findUnique({
+          where: { id: secondary.linkedId },
+        });
+
+        if (!primaryOfSecondary)
+          return json(
+            {
+              message: "Error: Somehow no primary of secondary was found.",
+            },
+            { status: 404 }
+          );
+
+        const thesePrimaries = [primary, primaryOfSecondary];
+
+        thesePrimaries.sort(
+          // @ts-ignore
+          // It works. Typescript just doesn't understand this yet.
+          (a, b) => a.createdAt - b.createdAt
+        );
+
+        await prisma.contact.updateMany({
+          where: {
+            OR: [
+              { id: thesePrimaries[1].id },
+              { linkedId: thesePrimaries[1].linkedId },
+            ],
+          },
           data: {
-            linkedId: primaryContactId,
+            linkedId: thesePrimaries[0].id,
+            linkPrecedence: "secondary",
           },
         });
+
+        primaryContactId = thesePrimaries[0].id;
       }
 
       if (primaries.length === 0) {
