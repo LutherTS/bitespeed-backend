@@ -220,6 +220,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           where: { id: secondary.linkedId },
         });
 
+        // also for type safety just in case
         if (!primaryOfSecondary)
           return json(
             {

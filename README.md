@@ -19,9 +19,9 @@ Hit the /reset endpoint to reset the database (https://bitespeed-backend.fly.dev
 - A phone number that begins with a "+" for country codes is also accepted.
 - Emails can be provided as empty and if they're not, they are validated with the validator library's isEmail function.
 
-- If two different secondary contacts are found, one via the phone number, another one via the email, the most recent of their primary contacts is selected for the response.
-- If two different contacts are found, one primary, one secondary, the secondary contact is reassigned from its prexisting primary to the primary that was found.
 - If two contacts are found and both are primary contacts, not only does the newest primary contact become a secondary contact to the oldest one, the secondary contacts of the newest primary are also reassigned as secondaries to the oldest primary.
+- If two different contacts are found, one primary, one secondary, the primary of the secondary contact is found and as above, the newest primary between the two primaries and all its the secondary contacts are reassigned as secondaries to the oldest primary.
+- If two different secondary contacts are found, one via the phone number, another one via the email, the most recent of their primary contacts is selected for the response.
 
 ## Contacts
 
