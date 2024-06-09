@@ -201,7 +201,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         const primary = primaries[0];
 
         // console.log(
-        //   "However, the decision is made that in such instances, the primary of the secondary and all its secondaries (including the secondary provided) are reassigned to the primary provided."
+        //   "However, the decision is made that in such instances, the primary of the secondary and all its secondaries (including the secondary provided) are reassigned to the primary provided, if it is the oldest, or inversely if it isn't."
         // );
         const secondary = contacts.find(
           (e) => e.linkPrecedence === "secondary"
@@ -240,7 +240,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           where: {
             OR: [
               { id: thesePrimaries[1].id },
-              { linkedId: thesePrimaries[1].linkedId },
+              { linkedId: thesePrimaries[1].id },
             ],
           },
           data: {
