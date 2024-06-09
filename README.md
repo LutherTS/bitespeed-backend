@@ -1,36 +1,29 @@
-# Welcome to Remix + Vite!
+# Bitespeed Backend Task - Identity Reconciliation
 
-📖 See the [Remix docs](https://remix.run/docs) and the [Remix Vite docs](https://remix.run/docs/en/main/guides/vite) for details on supported features.
+## Sources
 
-## Development
+Job link: https://bitespeed.notion.site/Backend-Developer-SDE-1-357cd0ddceba497bbf5f4dc88b03522b
+Assignment link: https://bitespeed.notion.site/Bitespeed-Backend-Task-Identity-Reconciliation-53392ab01fe149fab989422300423199
 
-Run the Vite dev server:
+## Endpoints
 
-```shellscript
-npm run dev
-```
+Hit the /identify endpoint with the relevant data (https://bitespeed-backend.fly.dev/identify).
 
-## Deployment
+Hit the /reset endpoint to reset the database (https://bitespeed-backend.fly.dev/reset).
 
-First, build your app for production:
+## Extra Credits
 
-```sh
-npm run build
-```
+- I've used zod to validate the provided phone numbers and emails.
+- Phone numbers are accepted through a regex only if they exclusively include numbers.
+- A phone number that begins with a + for country codes is also accepted.
+- Emails can be provided as empty and if they're not, they are validated with the validator library's isEmail function.
 
-Then run the app in production mode:
+- If two different secondary contacts are found, one via the phone number, another one via the email, the most recent of their primary contacts is selected for the response.
+- If two different contacts are found, one primary, one secondary, the secondary contact is reassigned from its prexisting primary to the primary that was found.
+- If two contacts are found and both are primary contacts, not only does the newest primary contact become the a secondary contact to the older one, the secondary contacts of the newest primary are also reassigned as secondaries to the oldest primary.
 
-```sh
-npm start
-```
+## Contacts
 
-Now you'll need to pick a host to deploy it to.
+Please let me know what you think at luther@tchofo-safo-portofolio.me.
 
-### DIY
-
-If you're familiar with deploying Node applications, the built-in Remix app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-- `build/server`
-- `build/client`
+And it you ever end up hiring me for this position, you can send Apple AirPods Pro to Ayesha from Flexiple for the indirect referral.
