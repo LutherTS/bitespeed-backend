@@ -276,8 +276,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     where: {
       OR: [{ id: primaryContactId }, { linkedId: primaryContactId }],
     },
-    // because the primary contact will always be the oldest
-    orderBy: { createdAt: "asc" },
+    // because the primary contact will always be the oldest // FALSE
+    // If mcfly is secondary but is attached to a more recent primary,
+    // mcfly here shows up first instead of its new primary.
+    // I can fix this issue in the orderBy, since
+    // "primary" alphabetically comes before "secondary".
+    orderBy: [{ linkPrecedence: "asc" }, { createdAt: "asc" }],
   });
 
   const contactPhoneNumbers = await prisma.contact.findMany({
@@ -287,8 +291,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     where: {
       OR: [{ id: primaryContactId }, { linkedId: primaryContactId }],
     },
-    // because again the primary contact will always be the oldest
-    orderBy: { createdAt: "asc" },
+    // because again the primary contact will always be the oldest // FALSE
+    // see fix details above
+    // If troubles arise again, I'll just go the Array.prototype.concat() way.
+    orderBy: [{ linkPrecedence: "asc" }, { createdAt: "asc" }],
   });
 
   const contactSecondaryIds = await prisma.contact.findMany({
