@@ -21,7 +21,7 @@ Hit the /reset endpoint to reset the database (https://bitespeed-backend.fly.dev
 
 - If two different secondary contacts are found, one via the phone number, another one via the email, the most recent of their primary contacts is selected for the response.
 - If two different contacts are found, one primary, one secondary, the secondary contact is reassigned from its prexisting primary to the primary that was found.
-- If two contacts are found and both are primary contacts, not only does the newest primary contact become the a secondary contact to the oldest one, the secondary contacts of the newest primary are also reassigned as secondaries to the oldest primary.
+- If two contacts are found and both are primary contacts, not only does the newest primary contact become a secondary contact to the oldest one, the secondary contacts of the newest primary are also reassigned as secondaries to the oldest primary.
 
 ## Contacts
 
