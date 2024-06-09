@@ -220,6 +220,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           where: { id: secondary.linkedId },
         });
 
+        // also for type safety just in case
         if (!primaryOfSecondary)
           return json(
             {
@@ -258,7 +259,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         // );
         // console.log(
         //   "Consequently, the decision is made that in such instances, only the earliest of their primaries will be shown. (Handling both cases when the primaries are common and uncommon.)"
-        // );
+        // ); // NOT ANYMORE
 
         // again impossible, but necessary for type safety
         if (!contactByPhoneNumber.linkedId || !contactByEmail.linkedId)
@@ -278,6 +279,20 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             ],
           },
           orderBy: { createdAt: "asc" },
+        });
+
+        // NOW: just like the other cases, we're merging primaries again.
+        await prisma.contact.updateMany({
+          where: {
+            OR: [
+              { id: theirPrimaries[1].id },
+              { linkedId: theirPrimaries[1].id },
+            ],
+          },
+          data: {
+            linkedId: theirPrimaries[0].id,
+            linkPrecedence: "secondary",
+          },
         });
 
         primaryContactId = theirPrimaries[0].id;
