@@ -16,7 +16,7 @@ Hit the /reset endpoint to reset the database (https://bitespeed-backend.fly.dev
 
 - I've used zod to validate the provided phone numbers and emails.
 - Phone numbers are accepted through a regex only if they exclusively include numbers.
-- A phone number that begins with a + for country codes is also accepted.
+- A phone number that begins with a "+" for country codes is also accepted.
 - Emails can be provided as empty and if they're not, they are validated with the validator library's isEmail function.
 
 - If two different secondary contacts are found, one via the phone number, another one via the email, the most recent of their primary contacts is selected for the response.
@@ -27,4 +27,4 @@ Hit the /reset endpoint to reset the database (https://bitespeed-backend.fly.dev
 
 Please let me know what you think at luther@tchofo-safo-portofolio.me.
 
-And it you ever end up hiring me for this position, you can send Apple AirPods Pro to Ayesha from Flexiple for the indirect referral. 🙂
+And it you ever end up hiring me for this position, you can send the Apple AirPods Pro to Ayesha from Flexiple for the indirect referral. 🙂
