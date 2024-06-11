@@ -160,8 +160,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
 
     // exactContact is already catched on top so the following are bound
-    // to be different, and since they both are findFirst they are also
-    // likely to be both primaries in their own right.
+    // to be different
     if (contactByEmail && contactByPhoneNumber) {
       const contacts = [contactByEmail, contactByPhoneNumber];
       const primaries = contacts.filter((e) => e.linkPrecedence === "primary");
