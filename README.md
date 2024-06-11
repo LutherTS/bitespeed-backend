@@ -1,5 +1,7 @@
 # Bitespeed Backend Task - Identity Reconciliation
 
+(This is made with Remix. A version made with Next.js can be found here: https://github.com/LutherTS/nextjs-bitespeed-backend)
+
 ## Sources
 
 Job link: https://bitespeed.notion.site/Backend-Developer-SDE-1-357cd0ddceba497bbf5f4dc88b03522b
